@@ -18,7 +18,6 @@ spring:
   h2:
     console.enabled: true
 
-logging:
-  level:
+logging.level:
     org.hibernate.SQL: debug
 #    org.hibernate.type: trace
