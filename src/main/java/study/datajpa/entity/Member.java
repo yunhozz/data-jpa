@@ -35,6 +35,7 @@ public class Member {
         }
     }
 
+    //연관관계 편의 메소드
     private void changeTeam(Team team) {
         this.team = team;
         team.getMembers().add(this);
