@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
-@Rollback(value = false)
 class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
@@ -70,5 +69,29 @@ class MemberRepositoryTest {
         assertThat(result.get(0).getUsername()).isEqualTo("B");
         assertThat(result.get(0).getAge()).isEqualTo(20);
         assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void testNamedQuery() {
+        Member m1 = new Member("A", 10);
+        Member m2 = new Member("B", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> result = memberRepository.findByUsername("A");
+
+        assertThat(result.get(0)).isEqualTo(m1);
+    }
+
+    @Test
+    public void testQuery() {
+        Member m1 = new Member("A", 10);
+        Member m2 = new Member("B", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> result = memberRepository.findUser("A", 10);
+
+        assertThat(result.get(0)).isEqualTo(m1);
     }
 }
