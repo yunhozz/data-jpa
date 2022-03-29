@@ -22,11 +22,6 @@ public class Member {
     private String username;
     private int age;
 
-    public void changeTeam(Team team) {
-        this.team = team;
-        team.getMembers().add(this);
-    }
-
     public Member(String username) {
         this.username = username;
     }
@@ -38,5 +33,10 @@ public class Member {
         if (team != null) {
             changeTeam(team);
         }
+    }
+
+    private void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
     }
 }
