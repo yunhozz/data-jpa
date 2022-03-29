@@ -1,9 +1,6 @@
 package study.datajpa.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,6 +9,7 @@ import java.util.List;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "name"})
 public class Team {
 
     @Id
@@ -23,4 +21,8 @@ public class Team {
     private List<Member> members = new ArrayList<>();
 
     private String name;
+
+    public Team(String name) {
+        this.name = name;
+    }
 }
