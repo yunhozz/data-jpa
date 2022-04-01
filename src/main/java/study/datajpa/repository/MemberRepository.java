@@ -42,5 +42,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     //페이징 (Page, Slice)
     @Query(value = "select m from Member m left join m.team t",
             countQuery = "select count(m) from Member m")
-    Page<Member> findByAge(int age, Pageable pageable); //데이터의 양이 많을 땐 countQuery 분리해야한다.
+    Page<Member> findByAge(int age, Pageable pageable); //데이터의 양이 많을 땐 countQuery 로 분리해야한다. (단, 다대일 한정)
 }
