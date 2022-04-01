@@ -215,6 +215,32 @@ class MemberRepositoryTest {
         //(flush 사용 o) age = 41
         System.out.println("member5 = " + member5);
 
+        /*
+          <CASE1: 엔티티를 먼저 조회해둔 상황>
+          1. 엔티티를 조회함
+           엔티티 상태:(id=1, age=40) | DB 상태(id=1, age=40)
+
+          2. 벌크 연산으로 +1
+           엔티티 상태:(id=1, age=40) | DB 상태(id=1, age=41)
+
+          3. findByUsername 조회
+           select m from Member; 로 조회했지만, 결과 id=1 값이 이미 영속성 컨텍스트에 있으므로 DB 에서 조회한 값을 버리고
+           영속성 컨텍스트에서 조회한 값을 반환함
+
+          결과적으로 조회된 최종 데이터는 (id=1, age=40)
+
+          <CASE2: 엔티티를 먼저 조회하지 않은 상황>
+          1. 영속성 컨텍스트가 관련하는 엔티티가 없음
+           엔티티 없음 | DB 상태(id=1, age=40)
+
+          2. 벌크 연산으로 +1
+           엔티티 없음 | DB 상태(id=1, age=41)
+
+          3. findByUsername 조회
+
+          결과적으로 엔티티 상태:(id=1, age=41) | DB 상태(id=1, age=41)
+         */
+
         assertThat(resultCount).isEqualTo(3);
     }
 }
