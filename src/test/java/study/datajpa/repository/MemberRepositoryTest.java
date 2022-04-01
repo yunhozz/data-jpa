@@ -155,7 +155,7 @@ class MemberRepositoryTest {
         memberRepository.save(m1);
         memberRepository.save(m2);
 
-        List<Member> members = memberRepository.findListByUsername("A"); //null 상황을 가정할 필요 x
+        List<Member> members = memberRepository.findListByUsername("A"); //null 일 때 빈 컬렉션 반환 -> 검증 필요 x
         System.out.println("members = " + members);
 
         Member member = memberRepository.findMemberByUsername("B"); //null 가능성 o -> Optional
