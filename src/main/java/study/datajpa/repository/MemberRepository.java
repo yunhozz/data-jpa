@@ -2,21 +2,22 @@ package study.datajpa.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     //메소드 명으로 쿼리 생성, 이름이 길어지면 더러워진다.
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age); //select m from Member m where m.username = :username and m.age > :age
+    List<Member> findTop3HelloBy();
 
     //using NamedQuery, 어플리케이션 동작 시점에 오류 검출, 거의 사용 x
     List<Member> findByUsername(@Param("username") String username);
@@ -49,4 +50,27 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true) //자동으로 영속성 컨텍스트를 flush, clear 해준다.
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    //페치 조인 (Member -> Team) : 간단한 JPQL 을 작성해야 하는 것이 귀찮다 -> @EntityGraph
+    @Query("select m from Member m left join fetch m.team")
+    List<Member> findMemberFetchJoin();
+
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m")
+    List<Member> findMemberEntityGraph();
+
+    @EntityGraph(attributePaths = {"team"})
+//    @EntityGraph("Member.all")
+    List<Member> findEntityGraphByUsername(@Param("username") String username);
+
+    //JPA Hint
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true")) //읽기 전용 -> 내부적으로 성능 최적화
+    Member findReadOnlyByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE) //for update
+    List<Member> findLockByUsername(String username);
 }

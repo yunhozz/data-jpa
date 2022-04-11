@@ -242,4 +242,64 @@ class MemberRepositoryTest {
 
         assertThat(resultCount).isEqualTo(3);
     }
+
+    @Test
+    public void findMemberLazy() {
+        //given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        //when
+//        List<Member> members = memberRepository.findAll(); //select Member (Team x) -> N + 1 문제 발생!!
+//        List<Member> members = memberRepository.findMemberFetchJoin(); //select Member, Team -> 객체 그래프 생성
+//        List<Member> members = memberRepository.findMemberEntityGraph();
+        List<Member> members = memberRepository.findEntityGraphByUsername("member1");
+
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("teamClass = " + member.getTeam().getClass());
+            System.out.println("team = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void queryHint() {
+        //given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+//        Member findMember = memberRepository.findById(member1.getId()).get();
+        Member findMember = memberRepository.findReadOnlyByUsername("member1"); //변경 감지 체크 x -> update x
+        findMember.setUsername("member2"); //update
+        em.flush();
+    }
+
+    @Test
+    public void lock() {
+        //given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> result = memberRepository.findLockByUsername("member1");
+    }
+
+    @Test
+    public void callCustom() {
+        List<Member> result = memberRepository.findMemberCustom();
+    }
 }
