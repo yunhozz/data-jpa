@@ -168,6 +168,7 @@ class MemberRepositoryTest {
     }
 
     @Test
+    @Rollback(value = false)
     public void paging() {
         //given
         memberRepository.save(new Member("member1", 10));
