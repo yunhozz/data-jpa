@@ -13,7 +13,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
+/*
+리포지토리 interface 를 여러개 만들어 확장 가능
+JpaSpecificationExecutor 은 사용하지 말자!
+ */
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom, JpaSpecificationExecutor<Member> {
 
     //메소드 명으로 쿼리 생성, 이름이 길어지면 더러워진다.
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age); //select m from Member m where m.username = :username and m.age > :age
@@ -73,4 +77,18 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     @Lock(LockModeType.PESSIMISTIC_WRITE) //for update
     List<Member> findLockByUsername(String username);
+
+    //프로젝션
+//    List<UsernameOnly> findProjectionsByUsername(@Param("username") String username);
+    List<UsernameOnlyDto> findProjectionsByUsername(@Param("username") String username);
+    <T> List<T> findProjectionsByUsername(@Param("username") String username, Class<T> type);
+
+    //네이티브 쿼리
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+
+    @Query(value = "select m.member_id as id, m.username, t.name as teamName from member m left join team t",
+            countQuery = "select count(*) from member",
+            nativeQuery = true)
+    Page<MemberProjection> findByNativeProjection(Pageable pageable);
 }
